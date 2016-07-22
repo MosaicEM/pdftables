@@ -6,8 +6,8 @@ PDFTables helps with extracting tables from PDF files.
 # See https://pypi.python.org/pypi?%3Aaction=list_classifiers for classifiers
 
 setup(
-    name='pdftables',
-    version='0.0.4',
+    name='pdftables.six',
+    version='0.0.5',
     description="Parses PDFs and extracts what it believes to be tables.",
     long_description=long_desc,
     classifiers=[
@@ -27,7 +27,7 @@ setup(
     include_package_data=False,
     zip_safe=False,
     install_requires=[
-        #'pdfminer>=20160614',
+        'pdfminer.six>=20160614',
         'numpy>=1.6.2',
     ],
     tests_require=[],

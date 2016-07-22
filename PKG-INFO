@@ -1,8 +1,8 @@
 Metadata-Version: 1.1
-Name: pdftables
-Version: 0.0.4
+Name: pdftables.six
+Version: 0.0.5
 Summary: Parses PDFs and extracts what it believes to be tables.
-Home-page: http://scraperwiki.com
+Home-page: https://github.com/vnaydionov/pdftables
 Author: ScraperWiki Ltd
 Author-email: feedback@scraperwiki.com
 License: BSD
@@ -11,7 +11,12 @@ Description:
         
 Platform: UNKNOWN
 Classifier: Development Status :: 3 - Alpha
-Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: BSD License
 Classifier: Operating System :: POSIX :: Linux
 Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Text Processing
