@@ -38,6 +38,11 @@ import math
 import numpy # TODO: remove this dependency
 from .counter import Counter
 
+
+def fround(x):
+    return float(round(x))
+
+
 IS_TABLE_COLUMN_COUNT_THRESHOLD = 3
 IS_TABLE_ROW_COUNT_THRESHOLD = 3
 
@@ -199,8 +204,8 @@ def apply_combs(box_list, x_comb, y_comb):
     nrows = len(y_comb) - 1
     table_array = [[''] * ncolumns for j in range(nrows)]
     for box in box_list:
-        y = round(box.midline)
-        x = round(box.centreline)
+        y = fround(box.midline)
+        x = fround(box.centreline)
         rowindex = comb(y_comb, y)
         columnindex = comb(x_comb, x)
         if rowindex != -1 and columnindex != -1:
@@ -324,9 +329,9 @@ def project_boxes(box_list, orientation, erosion=0):
         lower = BOTTOM
 
     projection = {}
-    minv = round(min([box.bbox[lower]
+    minv = fround(min([box.bbox[lower]
                  for box in box_list])) - 2  # ensure some overlap
-    maxv = round(max([box.bbox[upper] for box in box_list])) + 2
+    maxv = fround(max([box.bbox[upper] for box in box_list])) + 2
 
     # Initialise projection structure
     # print minv, maxv
@@ -335,8 +340,8 @@ def project_boxes(box_list, orientation, erosion=0):
 
     # print projection
     for box in box_list:
-        for i in range(int(round(box.bbox[lower])) + erosion,
-                       int(round(box.bbox[upper])) - erosion):
+        for i in range(int(fround(box.bbox[lower])) + erosion,
+                       int(fround(box.bbox[upper])) - erosion):
             # projection[i] += 1
             projection.append(i)
 
@@ -380,7 +385,7 @@ def rounder(val, tol):
     """
     Utility function to round numbers to arbitrary tolerance
     """
-    return round((1.0 * val) / tol) * tol
+    return fround((1.0 * val) / tol) * tol
 
 
 #def filter_box_list_by_type(box_list, flt):
@@ -411,8 +416,8 @@ def multi_column_detect(page):
         5)  # ensure some overlap
     maxv = rounder(max([box.top for box in box_list]), 5)
 
-    minx = round(min([box.left for box in box_list]))  # ensure some overlap
-    maxx = round(max([box.right for box in box_list]))
+    minx = fround(min([box.left for box in box_list]))  # ensure some overlap
+    maxx = fround(max([box.right for box in box_list]))
 
     # Initialise projection structure
     # print minv, maxv
@@ -606,7 +611,7 @@ def calculate_modal_height(box_list):
     height_list = []
     for box in box_list:
         if box.classname in ('LTTextLineHorizontal', 'LTChar'):
-            height_list.append(round(box.bbox[TOP] - box.bbox[BOTTOM]))
+            height_list.append(fround(box.bbox[TOP] - box.bbox[BOTTOM]))
 
     modal_height = Counter(height_list).most_common(1)
     return modal_height[0][0]

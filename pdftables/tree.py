@@ -15,7 +15,7 @@ def _rounder(val,tol):
      """
      Utility function to round numbers to arbitrary tolerance
      """
-     return round((1.0*val)/tol)*tol
+     return float(round((1.0*val)/tol))*tol
 
 class Histogram(Counter):
     def rounder(self, tol):

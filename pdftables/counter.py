@@ -79,6 +79,13 @@ class Counter(dict):
             if hasattr(iterable, 'iteritems'):
                 if self:
                     self_get = self.get
+                    for elem, count in iterable.iteritems():
+                        self[elem] = self_get(elem, 0) + count
+                else:
+                    dict.update(self, iterable) # fast path when counter is empty
+            elif hasattr(iterable, 'items'):
+                if self:
+                    self_get = self.get
                     for elem, count in iterable.items():
                         self[elem] = self_get(elem, 0) + count
                 else:
