@@ -4,7 +4,7 @@
 # ScraperWiki Limited
 # Ian Hopkinson, 2013-06-04
 
-from __future__ import unicode_literals
+
 """
 Some experiments with pdfminer
 http://www.unixuser.org/~euske/python/pdfminer/programming.html
@@ -21,8 +21,9 @@ http://denis.papathanasiou.org/2010/08/04/extracting-text-images-from-pdf-files
 import sys
 import codecs
 
-from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfdevice import PDFDevice
 from pdfminer.layout import LAParams, LTPage
@@ -30,12 +31,12 @@ from pdfminer.converter import PDFPageAggregator
 
 import collections
 
-from tree import Leaf, LeafList
+from .tree import Leaf, LeafList
 import requests  # TODO: remove this dependency
-from cStringIO import StringIO
+from io import StringIO
 import math
 import numpy # TODO: remove this dependency
-from counter import Counter
+from .counter import Counter
 
 IS_TABLE_COLUMN_COUNT_THRESHOLD = 3
 IS_TABLE_ROW_COUNT_THRESHOLD = 3
@@ -67,9 +68,10 @@ def get_tables(fh):
     list of rows, and a row is a list of strings.
     """
     result = []
-    doc, interpreter, device = initialize_pdf_miner(fh)
-    doc_length = len(list(doc.get_pages()))
-    for i, pdf_page in enumerate(doc.get_pages()):
+    interpreter, device = initialize_pdf_interpreter()
+    pages = list(PDFPage.get_pages(fh))
+    doc_length = len(pages)
+    for i, pdf_page in enumerate(pages):
         #print("Trying page {}".format(i + 1))
         if not page_contains_tables(pdf_page, interpreter, device):
             #print("Skipping page {}: no tables.".format(i + 1))
@@ -107,11 +109,7 @@ def crop_table(table):
             break
 
 
-def initialize_pdf_miner(fh):
-    # Create a PDF parser object associated with the file object.
-    parser = PDFParser(fh)
-    # Create a PDF document object that stores the document structure.
-    doc = PDFDocument(parser)
+def initialize_pdf_interpreter():
     # Create a PDF resource manager object that stores shared resources.
     rsrcmgr = PDFResourceManager()
     # Create a PDF device object.
@@ -125,12 +123,10 @@ def initialize_pdf_miner(fh):
     # Set parameters for analysis.
     laparams = LAParams()
     laparams.word_margin = 0.0
-    codec = 'utf-8'
     # Create a PDF page aggregator object.
     device = PDFPageAggregator(rsrcmgr, laparams=laparams)
-
     interpreter = PDFPageInterpreter(rsrcmgr, device)
-    return doc, interpreter, device
+    return interpreter, device
 
 
 def contains_tables(fh):
@@ -138,10 +134,11 @@ def contains_tables(fh):
     contains_tables(fh) takes a file handle and returns a boolean array of the
     length of the document which is true for pages which contains tables
     """
-    doc, interpreter, device = initialize_pdf_miner(fh)
+    interpreter, device = initialize_pdf_interpreter()
+    pages = PDFPage.get_pages(fh)
 
     return [page_contains_tables(p, interpreter, device) for
-            p in doc.get_pages()]
+            p in pages]
 
 
 def page_contains_tables(pdf_page, interpreter, device):
@@ -156,7 +153,7 @@ def page_contains_tables(pdf_page, interpreter, device):
         assert isinstance(item, Leaf), "NOT LEAF"
     yhist = box_list.histogram(Leaf._top).rounder(1)
 
-    test = [k for k, v in yhist.items() if v > IS_TABLE_COLUMN_COUNT_THRESHOLD]
+    test = [k for k, v in list(yhist.items()) if v > IS_TABLE_COLUMN_COUNT_THRESHOLD]
     return len(test) > IS_TABLE_ROW_COUNT_THRESHOLD
 
 
@@ -169,7 +166,7 @@ def threshold_above(hist, threshold_value):
     if not isinstance(hist, Counter):
         raise ValueError("requires Counter")  # TypeError then?
 
-    above = [k for k, v in hist.items() if v > threshold_value]
+    above = [k for k, v in list(hist.items()) if v > threshold_value]
     return above
 
 
@@ -333,7 +330,7 @@ def project_boxes(box_list, orientation, erosion=0):
 
     # Initialise projection structure
     # print minv, maxv
-    coords = range(int(minv), int(maxv))
+    coords = list(range(int(minv), int(maxv)))
     projection = coords
 
     # print projection
@@ -347,8 +344,8 @@ def project_boxes(box_list, orientation, erosion=0):
 
 
 def get_pdf_page(fh, pagenumber):
-    doc, interpreter, device = initialize_pdf_miner(fh)
-    pages = list(doc.get_pages())
+    interpreter, device = initialize_pdf_interpreter()
+    pages = list(PDFPage.get_pages(fh))
 
     try:
         page = pages[pagenumber - 1]
@@ -420,16 +417,16 @@ def multi_column_detect(page):
     # Initialise projection structure
     # print minv, maxv
 
-    coords = range(int(minv), int(maxv) + vstep, vstep)
+    coords = list(range(int(minv), int(maxv) + vstep, vstep))
 
-    pile = collections.OrderedDict(zip(coords, [0] * len(coords)))
+    pile = collections.OrderedDict(list(zip(coords, [0] * len(coords))))
     # print projection
     for box in box_list:
         # print int(rounder(box.midline, 30)), box.width
         pile[int(rounder(box.midline, vstep))] += box.width
 
-    for key, value in pile.items():
-        pile[key] = value / (maxx - minx)
+    for key, value in list(pile.items()):
+        pile[key] = value // (maxx - minx)
 
     # Box width histogram
     bstep = 10
@@ -437,20 +434,20 @@ def multi_column_detect(page):
     boxwidthmin = rounder(min([box.width for box in box_list]), bstep)
     boxwidthmax = rounder(max([box.width for box in box_list]), bstep)
 
-    coords = range(int(boxwidthmin), int(boxwidthmax) + bstep, bstep)
-    boxhist = collections.OrderedDict(zip(coords, [0] * len(coords)))
+    coords = list(range(int(boxwidthmin), int(boxwidthmax) + bstep, bstep))
+    boxhist = collections.OrderedDict(list(zip(coords, [0] * len(coords))))
     for box in box_list:
         # print int(rounder(box.midline, 30)), box.width
         boxhist[int(rounder(box.width, bstep))] += 1
 
     nboxes = len(box_list)
-    for key, value in boxhist.items():
+    for key, value in list(boxhist.items()):
         boxhist[key] = float(value) / float(nboxes)
     # TODO: plt undefined
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
-    ax1.plot(map(float, boxhist.keys()),
-             map(float, boxhist.values()), color='red')
+    ax1.plot(list(map(float, list(boxhist.keys()))),
+             list(map(float, list(boxhist.values()))), color='red')
     plt.show()
 
     # This is old fashion projection
@@ -486,7 +483,7 @@ def page_to_tables(page, extend_y=False, hints=[], atomise=False):
 
     """If miny and maxy are None then we found no tables and should exit"""
     if miny is None and maxy is None:
-       print "found no tables"
+       print("found no tables")
        return table_array, TableDiagnosticData()
 
     if atomise:
@@ -509,7 +506,7 @@ def page_to_tables(page, extend_y=False, hints=[], atomise=False):
 
     # Project boxes onto vertical axis
     # Erode row height by a fraction of the modal text box height
-    erodelevel = int(math.floor(calculate_modal_height(filtered_box_list) / 4))
+    erodelevel = int(math.floor(calculate_modal_height(filtered_box_list) // 4))
     row_projection = project_boxes(
         filtered_box_list, "row",
         erosion=erodelevel)
@@ -538,7 +535,7 @@ def page_to_tables(page, extend_y=False, hints=[], atomise=False):
     if atomise:
         tmp_table = []
         for row in table_array:
-            stripped_row = map(unicode.strip,row)
+            stripped_row = list(map(str.strip,row))
             tmp_table.append(stripped_row)
         table_array = tmp_table
 
@@ -625,11 +622,11 @@ def file_handle_from_url(URL):
 if __name__ == '__main__':
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     if len(sys.argv) > 1:
-        from display import to_string
+        from .display import to_string
         with open(sys.argv[1], 'rb') as f:
             tables = get_tables(f)
             for i, table in enumerate(tables):
-                print("---- TABLE {} ----".format(i + 1))
-                print(to_string(table))
+                print(("---- TABLE {} ----".format(i + 1)))
+                print((to_string(table)))
     else:
-        print("Usage: {} <file.pdf>".format(sys.argv[0]))
+        print(("Usage: {} <file.pdf>".format(sys.argv[0])))

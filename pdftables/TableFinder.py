@@ -14,13 +14,13 @@ import lxml.html
 import glob
 import matplotlib.pyplot as plt
 import collections
-from counter import Counter
+from .counter import Counter
 
 # TODO - Use pdfminer
 # TODO
 
 def pdftoxml(filename,options):
-    ConverterPath = unicode(r'C:\Users\Ian\BitBucketRepos\0939-AgraInforma\bin\pdftohtml.exe')
+    ConverterPath = str(r'C:\Users\Ian\BitBucketRepos\0939-AgraInforma\bin\pdftohtml.exe')
     directory = os.path.split(filename)[0]
     tmpxml = os.path.join(directory,"temph.xml")
     if tmpxml in os.listdir('.'):
@@ -61,7 +61,7 @@ def plotpage(pageheight,pagewidth,pagenumber,SelectedPDF,left,top,right):
     plt.show()
     return fig
 
-PDF_TEST_FILES = unicode(r'C:\Users\Ian\BitBucketRepos\0939-AgraInforma\fixtures')
+PDF_TEST_FILES = str(r'C:\Users\Ian\BitBucketRepos\0939-AgraInforma\fixtures')
 
 # PDFList = glob.glob(os.path.join(PDF_TEST_FILES,'*.pdf'))
 

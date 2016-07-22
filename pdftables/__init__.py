@@ -1,1 +1,1 @@
-from pdftables import *
+from .pdftables import *

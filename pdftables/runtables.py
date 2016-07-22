@@ -3,7 +3,7 @@
 # Ian Hopkinson, 2013-06-21
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+
 #import sys
 #import codecs
 # sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
@@ -12,11 +12,11 @@ Tell us what this does
 """
 
 import os
-from pdftables import get_pdf_page, page_to_tables
+from .pdftables import get_pdf_page, page_to_tables
 from os.path import join, dirname
-import pdftables_analysis as pta
-from display import to_string, get_dimensions
-from cStringIO import StringIO
+from . import pdftables_analysis as pta
+from .display import to_string, get_dimensions
+from io import StringIO
 
 
 PDF_TEST_FILES = os.path.join(os.pardir, 'fixtures\sample_data')
@@ -56,7 +56,7 @@ hints = []
 
 SelectedPDF = "2012.01.PosRpt.pdf" # 7 pages works fine in pdfminer, 4 for first test 2012.01.PosRpt.pdf
 pagenumber = 1 # Table too small to find - needs hints
-hints = [u"% Change", u"Uncommited"]
+hints = ["% Change", "Uncommited"]
 #pagenumber = 2 # Looks really nice
 #pagenumber = 3 # Looks really nice
 #pagenumber = 4 # the original!
@@ -93,7 +93,7 @@ result = StringIO()
 (columns, rows) = get_dimensions(table)
 result.write("     {} columns, {} rows\n".format(columns, rows))
 
-print to_string(table)
+print(to_string(table))
 
 
 

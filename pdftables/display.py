@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from __future__ import unicode_literals
+
 from collections import defaultdict
-from StringIO import StringIO
+from io import StringIO
 
 
 def to_string(table):
@@ -20,7 +20,7 @@ def to_string(table):
     hbar = '    {}\n'.format('-' * table_width)
 
     result.write("      {}\n".format(' '.join(
-        [unicode(col_index).rjust(width, ' ') for (col_index, width)
+        [str(col_index).rjust(width, ' ') for (col_index, width)
          in enumerate(col_widths)])))
 
     result.write(hbar)
@@ -30,7 +30,7 @@ def to_string(table):
         result.write("{:>3} | {}|\n".format(row_index, '|'.join(cells)))
     result.write(hbar)
     result.seek(0)
-    return unicode(result.read())
+    return str(result.read())
 
 
 def get_dimensions(table):
@@ -62,4 +62,4 @@ def find_column_widths(table):
     return [col_widths[col] for col in sorted(col_widths)]
 
 if __name__ == '__main__':
-    print(to_string([['foo', 'goodbye'], ['llama', 'bar']]))
+    print((to_string([['foo', 'goodbye'], ['llama', 'bar']])))

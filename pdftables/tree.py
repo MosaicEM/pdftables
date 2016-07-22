@@ -3,13 +3,13 @@
 # Ian Hopkinson, 2013-06-19
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+
 """
 tree classes which hold the parsed PDF document data
 """
 
 import collections
-from counter import Counter
+from .counter import Counter
 
 def _rounder(val,tol):
      """
@@ -26,7 +26,7 @@ class Histogram(Counter):
 
 class Leaf(object):
     def __init__(self, obj):
-        if type(obj)==tuple:
+        if isinstance(obj, tuple):
             (self.bbox, self.classname, self.text) = obj
         else:
             if obj.__class__.__name__ != 'LTAnon':
@@ -90,7 +90,7 @@ class LeafList(list):
     def histogram(self, dir_fun):
         # index 0 = left, 1 = top, 2 = right, 3 = bottom
         for item in self:
-            assert type(item)==Leaf, item
+            assert isinstance(item, Leaf), item
         return Histogram(dir_fun(box) for box in self)
 
     def populate(self, pdfpage, interested=['LTPage','LTTextLineHorizontal']):

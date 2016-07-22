@@ -3,7 +3,7 @@
 # Ian Hopkinson, 2013-06-20
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+
 import sys
 import codecs
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
@@ -13,16 +13,17 @@ Analysis and visualisation library for pdftables
 """
 
 
-import pdftables as pt
+from . import pdftables as pt
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from tree import Leaf, LeafList
+from .tree import Leaf, LeafList
+from pdfminer.pdfpage import PDFPage
 
 
 FilterOptions = ['LTPage','LTTextBoxHorizontal','LTFigure','LTLine','LTRect','LTImage','LTTextLineHorizontal','LTCurve', 'LTChar', 'LTAnon']
 Colours       = ['black' ,'green'              ,'black'   ,'red'   ,'red'   ,'black'  ,'blue'                ,'red'    , 'red'   , 'White']
 
-ColourTable = dict(zip(FilterOptions, Colours))
+ColourTable = dict(list(zip(FilterOptions, Colours)))
 
 LEFT = 0
 TOP = 3
@@ -60,11 +61,11 @@ def plotpage(d):
 
     if d.top_plot: 
         axHistx = divider.append_axes("top", 1.2, pad=0.1, sharex=ax1)
-        axHistx.plot(map(float,d.top_plot.keys()),map(float,d.top_plot.values()), color = 'red')
+        axHistx.plot(list(map(float,list(d.top_plot.keys()))),list(map(float,list(d.top_plot.values()))), color = 'red')
         
     if d.left_plot:
         axHisty = divider.append_axes("left", 1.2, pad=0.1, sharey=ax1)
-        axHisty.plot(map(float,d.left_plot.values()),map(float,d.left_plot.keys()), color = 'red')
+        axHisty.plot(list(map(float,list(d.left_plot.values()))),list(map(float,list(d.left_plot.keys()))), color = 'red')
     
     if d.y_comb:
         miny = min(d.y_comb)
@@ -91,7 +92,7 @@ def plothistogram(hist):
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
     # ax1.axis('equal')
-    ax1.scatter(map(float,hist.keys()),map(float,hist.values()))
+    ax1.scatter(list(map(float,list(hist.keys()))),list(map(float,list(hist.values()))))
     #fig.suptitle('%s : Page %d' % (SelectedPDF,pagenumber), fontsize=15)
     plt.draw()
     return fig
@@ -102,15 +103,16 @@ def plotAllPages(fh):
     fig_list = []
     ax1_list = []
     
-    doc, interpreter, device = pt.initialize_pdf_miner(fh)
+    interpreter, device = pt.initialize_pdf_interpreter()
+    pages = PDFPage.get_pages(fh)
     # print SelectedPDF
-    Creator = doc.info[0]['Creator']
-    print "Created by: %s" % Creator
+    #Creator = doc.info[0]['Creator']
+    #print("Created by: %s" % Creator)
     #flt = 'LTTextLineHorizontal'
     #flt = ['LTPage','LTTextLineHorizontal']
     # flt = ['LTPage','LTFigure','LTLine','LTRect','LTImage','LTTextLineHorizontal','LTCurve']
     flt = ['LTPage','LTChar']
-    for i,page in enumerate(doc.get_pages()):
+    for i,page in enumerate(pages):
         # page = next(doc.get_pages())
 
         interpreter.process_page(page)
@@ -134,7 +136,7 @@ def plotAllPages(fh):
         title = "page %d" % (i+1)
         fig.suptitle(title)
         #print "Page %d" % (i+1), ElementCount
-        print box_list.count()
-        print "Modal character height: %d" % ModalHeight
+        print(box_list.count())
+        print("Modal character height: %d" % ModalHeight)
 
     return fig_list, ax1_list
