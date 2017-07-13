@@ -20,6 +20,7 @@ http://denis.papathanasiou.org/2010/08/04/extracting-text-images-from-pdf-files
 
 import sys
 import codecs
+import six
 
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfpage import PDFPage
@@ -33,7 +34,7 @@ import collections
 
 from .tree import Leaf, LeafList
 import requests  # TODO: remove this dependency
-from io import StringIO
+from six import StringIO
 import math
 import numpy # TODO: remove this dependency
 from .counter import Counter
@@ -158,7 +159,7 @@ def page_contains_tables(pdf_page, interpreter, device):
         assert isinstance(item, Leaf), "NOT LEAF"
     yhist = box_list.histogram(Leaf._top).rounder(1)
 
-    test = [k for k, v in list(yhist.items()) if v > IS_TABLE_COLUMN_COUNT_THRESHOLD]
+    test = [k for k, v in six.iteritems(yhist) if v > IS_TABLE_COLUMN_COUNT_THRESHOLD]
     return len(test) > IS_TABLE_ROW_COUNT_THRESHOLD
 
 
@@ -171,7 +172,7 @@ def threshold_above(hist, threshold_value):
     if not isinstance(hist, Counter):
         raise ValueError("requires Counter")  # TypeError then?
 
-    above = [k for k, v in list(hist.items()) if v > threshold_value]
+    above = [k for k, v in six.iteritems(hist) if v > threshold_value]
     return above
 
 
@@ -430,7 +431,7 @@ def multi_column_detect(page):
         # print int(rounder(box.midline, 30)), box.width
         pile[int(rounder(box.midline, vstep))] += box.width
 
-    for key, value in list(pile.items()):
+    for key, value in six.iteritems(pile):
         pile[key] = value // (maxx - minx)
 
     # Box width histogram
@@ -446,7 +447,7 @@ def multi_column_detect(page):
         boxhist[int(rounder(box.width, bstep))] += 1
 
     nboxes = len(box_list)
-    for key, value in list(boxhist.items()):
+    for key, value in six.iteritems(boxhist):
         boxhist[key] = float(value) / float(nboxes)
     # TODO: plt undefined
     fig = plt.figure()

@@ -1,3 +1,5 @@
+import six
+from six.moves import filter
 from operator import itemgetter
 from heapq import nlargest
 from itertools import repeat
@@ -37,8 +39,8 @@ class Counter(dict):
 
         '''        
         if n is None:
-            return sorted(iter(self.items()), key=itemgetter(1), reverse=True)
-        return nlargest(n, iter(self.items()), key=itemgetter(1))
+            return sorted(iter(six.iteritems(self)), key=itemgetter(1), reverse=True)
+        return nlargest(n, iter(six.iteritems(self)), key=itemgetter(1))
 
     def elements(self):
         '''Iterator over elements repeating each as many times as its count.
@@ -51,7 +53,7 @@ class Counter(dict):
         elements() will ignore it.
 
         '''
-        for elem, count in self.items():
+        for elem, count in six.iteritems(self):
             for _ in repeat(None, count):
                 yield elem
 

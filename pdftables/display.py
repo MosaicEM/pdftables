@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
+import six
+from six import StringIO
 from collections import defaultdict
-from io import StringIO
 
 
 def to_string(table):
@@ -20,7 +21,7 @@ def to_string(table):
     hbar = '    {}\n'.format('-' * table_width)
 
     result.write("      {}\n".format(' '.join(
-        [str(col_index).rjust(width, ' ') for (col_index, width)
+        [six.text_type(col_index).rjust(width, ' ') for (col_index, width)
          in enumerate(col_widths)])))
 
     result.write(hbar)
@@ -30,7 +31,7 @@ def to_string(table):
         result.write("{:>3} | {}|\n".format(row_index, '|'.join(cells)))
     result.write(hbar)
     result.seek(0)
-    return str(result.read())
+    return six.text_type(result.read())
 
 
 def get_dimensions(table):
