@@ -541,7 +541,7 @@ def page_to_tables(page, extend_y=False, hints=[], atomise=False):
     if atomise:
         tmp_table = []
         for row in table_array:
-            stripped_row = list(map(str.strip,row))
+            stripped_row = [elem.strip() for elem in row]
             tmp_table.append(stripped_row)
         table_array = tmp_table
 
