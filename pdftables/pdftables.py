@@ -475,8 +475,8 @@ def page_to_tables(page, extend_y=False, hints=[], atomise=False):
     table_array = []
 
     # For LTTextLine horizontal column and row thresholds of 3 work ok
-    columnThreshold = 5  # 3 works for smaller tables
-    rowThreshold = 3
+    columnThreshold = 3  # 3 works for smaller tables
+    rowThreshold = 2
 
     if atomise:
         flt = ['LTPage', 'LTTextLineHorizontal', 'LTChar']
