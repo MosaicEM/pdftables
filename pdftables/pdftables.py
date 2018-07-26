@@ -33,7 +33,6 @@ from pdfminer.converter import PDFPageAggregator
 import collections
 
 from .tree import Leaf, LeafList
-import requests  # TODO: remove this dependency
 from six import StringIO
 import math
 import numpy # TODO: remove this dependency
